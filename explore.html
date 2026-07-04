@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prime Martial Arts - Explore the School</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#111214;
+    --ink-2:#1b1d21;
+    --ink-3:#26292e;
+    --paper:#f2f4f6;
+    --paper-dim:#b9c0c7;
+    --blue:#1f7fd0;
+    --blue-deep:#14588f;
+    --accent:#5db2f0;
+    --accent-soft:#9fd0f5;
+    --line:#33373d;
+    --gold:#e6b422;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:"Barlow",system-ui,sans-serif;
+    font-size:16px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    overflow:hidden;
+  }
+  /* ---------- Stage ---------- */
+  #stage{position:fixed;inset:0;overflow:hidden;background:#000}
+  #sceneImg{
+    position:absolute;inset:0;width:100%;height:100%;
+    object-fit:cover;display:block;
+    transition:opacity .45s;
+  }
+  #sceneImg.fading{opacity:0}
+  #stage::after{ /* readability vignette */
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:
+      linear-gradient(180deg, rgba(17,18,20,.55) 0%, transparent 18%, transparent 70%, rgba(17,18,20,.65) 100%);
+  }
+  #pinLayer{position:absolute;inset:0}
+  /* ---------- Pins ---------- */
+  .pin{
+    position:absolute;transform:translate(-50%,-50%);
+    width:44px;height:44px;border-radius:50%;
+    background:rgba(31,127,208,.92);
+    border:2.5px solid #fff;
+    color:#fff;cursor:pointer;z-index:5;
+    display:grid;place-items:center;
+    font-family:"Oswald";font-weight:700;font-size:17px;
+    box-shadow:0 4px 16px rgba(0,0,0,.5);
+    transition:transform .15s, background .2s;
+  }
+  .pin:hover{transform:translate(-50%,-50%) scale(1.12)}
+  .pin::before{ /* pulse ring */
+    content:"";position:absolute;inset:-7px;border-radius:50%;
+    border:2px solid rgba(93,178,240,.85);
+    animation:pulse 2s ease-out infinite;
+    pointer-events:none;
+  }
+  @keyframes pulse{
+    0%{transform:scale(.8);opacity:1}
+    70%{transform:scale(1.35);opacity:0}
+    100%{transform:scale(1.35);opacity:0}
+  }
+  .pin.info{
+    width:34px;height:34px;
+    background:rgba(38,41,46,.92);
+    border-color:var(--paper-dim);
+    font-size:15px;font-weight:600;color:var(--accent-soft);
+  }
+  .pin.info::before{display:none}
+  .pin.done{background:rgba(24,130,60,.92)}
+  .pin.done::before{display:none}
+  .pin .tip{
+    position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);
+    white-space:nowrap;pointer-events:none;
+    background:rgba(17,18,20,.92);border:1px solid var(--line);
+    color:var(--paper);font-family:"Oswald";font-weight:500;
+    font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+    padding:6px 11px;border-radius:4px;
+    opacity:0;transition:opacity .15s;
+  }
+  .pin:hover .tip{opacity:1}
+  /* ---------- Top bar ---------- */
+  .bar{
+    position:fixed;top:0;left:0;right:0;z-index:20;
+    display:flex;align-items:center;gap:12px;
+    padding:12px 18px;
+  }
+  .badge{
+    width:32px;height:32px;flex:none;border-radius:6px;
+    background:var(--blue);display:grid;place-items:center;
+    font-family:"Oswald";font-weight:700;color:#fff;font-size:18px;
+    box-shadow:inset 0 0 0 2px rgba(245,243,238,.15);
+  }
+  .bar h1{
+    font-family:"Oswald";font-weight:600;font-size:15px;
+    letter-spacing:.14em;text-transform:uppercase;text-shadow:0 1px 8px rgba(0,0,0,.8);
+  }
+  .bar h1 span{color:var(--accent)}
+  .score{
+    margin-left:auto;display:flex;align-items:center;gap:10px;
+    font-family:"Oswald";font-weight:600;font-size:12px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--paper);
+    background:rgba(17,18,20,.75);border:1px solid var(--line);
+    padding:7px 12px;border-radius:20px;backdrop-filter:blur(6px);
+  }
+  .score .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+  /* ---------- Scene nav ---------- */
+  .nav{
+    position:fixed;bottom:0;left:0;right:0;z-index:20;
+    display:flex;align-items:flex-end;justify-content:center;gap:8px;
+    padding:0 16px 18px;
+  }
+  .scene-tab{
+    background:rgba(17,18,20,.78);color:var(--paper-dim);
+    border:1px solid var(--line);border-radius:6px;cursor:pointer;
+    font-family:"Oswald";font-weight:600;font-size:12px;
+    letter-spacing:.1em;text-transform:uppercase;
+    padding:10px 14px;transition:all .2s;backdrop-filter:blur(6px);
+  }
+  .scene-tab:hover{color:var(--paper);border-color:var(--paper-dim)}
+  .scene-tab.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .scene-tab .n{opacity:.65;margin-right:6px}
+  /* ---------- Panel ---------- */
+  #panel{
+    position:fixed;top:0;right:0;bottom:0;z-index:30;
+    width:min(430px, 100%);
+    background:var(--ink-2);border-left:1px solid var(--line);
+    transform:translateX(105%);
+    transition:transform .38s cubic-bezier(.4,0,.2,1);
+    display:flex;flex-direction:column;
+    box-shadow:-20px 0 60px rgba(0,0,0,.5);
+  }
+  #panel.open{transform:none}
+  .panel-head{
+    display:flex;align-items:center;gap:10px;
+    padding:16px 18px 12px;
+  }
+  .panel-head .loc{
+    font-family:"Oswald";font-weight:600;font-size:11px;
+    letter-spacing:.2em;text-transform:uppercase;color:var(--accent);
+  }
+  .panel-head .close{
+    margin-left:auto;background:var(--ink-3);border:1px solid var(--line);
+    color:var(--paper);width:32px;height:32px;border-radius:6px;cursor:pointer;
+    font-size:15px;line-height:1;
+  }
+  .panel-head .close:hover{background:var(--blue);border-color:var(--blue)}
+  .panel-body{overflow-y:auto;flex:1;padding:0 18px 24px}
+  .panel-body h2{
+    font-family:"Oswald";font-weight:600;font-size:22px;margin:2px 0 12px;
+  }
+  .panel-media{
+    aspect-ratio:16/9;border-radius:8px;overflow:hidden;
+    border:1px solid var(--line);background:#000;margin-bottom:16px;
+  }
+  .panel-media video{width:100%;height:100%;object-fit:cover;display:block}
+  .p-note{color:var(--paper-dim);font-size:14.5px;margin-bottom:6px}
+  .qblock{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+  .q-label{
+    font-family:"Oswald";font-weight:600;font-size:11px;
+    letter-spacing:.2em;text-transform:uppercase;color:var(--accent);
+    margin-bottom:7px;
+  }
+  .q-text{font-size:17.5px;font-weight:500;line-height:1.4}
+  .reveal-btn{
+    margin-top:12px;width:100%;
+    background:transparent;color:var(--accent);
+    border:1.5px solid var(--accent);border-radius:5px;cursor:pointer;
+    font-family:"Oswald";font-weight:600;font-size:13px;
+    letter-spacing:.14em;text-transform:uppercase;
+    padding:10px;transition:all .2s;
+  }
+  .reveal-btn:hover{background:rgba(93,178,240,.1)}
+  .answer{display:none;margin-top:12px;padding:13px 15px;
+    background:var(--ink-3);border-left:3px solid var(--accent);
+    border-radius:0 6px 6px 0;
+  }
+  .answer.show{display:block}
+  .answer .a-label{
+    font-family:"Oswald";font-weight:600;font-size:10px;
+    letter-spacing:.2em;text-transform:uppercase;color:var(--accent);
+    margin-bottom:5px;
+  }
+  .answer p+p{margin-top:6px;color:var(--paper-dim);font-size:14px}
+  /* ---------- Hello + finish overlays ---------- */
+  .overlay{
+    position:fixed;inset:0;z-index:40;
+    background:rgba(17,18,20,.82);backdrop-filter:blur(7px);
+    display:grid;place-items:center;padding:22px;
+    opacity:1;transition:opacity .4s;
+  }
+  .overlay.hide{opacity:0;pointer-events:none}
+  .overlay .box{
+    max-width:520px;text-align:center;
+    background:linear-gradient(160deg,var(--ink-2),var(--ink-3));
+    border:1px solid var(--blue);border-radius:14px;
+    padding:40px 30px;
+  }
+  .overlay .eyebrow{
+    font-family:"Oswald";font-weight:600;font-size:12px;
+    letter-spacing:.3em;text-transform:uppercase;color:var(--accent);
+    margin-bottom:14px;
+  }
+  .overlay h2{
+    font-family:"Oswald";font-weight:700;font-size:clamp(26px,6vw,40px);
+    text-transform:uppercase;line-height:1.05;
+  }
+  .overlay h2 .k{color:var(--accent)}
+  .overlay p{color:var(--paper-dim);margin:14px auto 0;max-width:400px}
+  .overlay button{
+    margin-top:26px;
+    background:var(--blue);color:#fff;border:none;cursor:pointer;
+    font-family:"Oswald";font-weight:600;font-size:15px;
+    letter-spacing:.14em;text-transform:uppercase;
+    padding:14px 28px;border-radius:4px;
+    box-shadow:0 6px 20px rgba(31,127,208,.28);
+    transition:background .2s, transform .15s;
+  }
+  .overlay button:hover{background:var(--blue-deep);transform:translateY(-2px)}
+  #finishOverlay{display:none}
+  #finishOverlay.on{display:grid}
+  @media (max-width:640px){
+    .bar h1{font-size:12px}
+    .scene-tab{padding:9px 10px;font-size:10.5px}
+    .pin{width:38px;height:38px;font-size:15px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important;animation:none!important}
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <img id="sceneImg" src="clips/scene1_entrance.jpg" alt="School view">
+  <div id="pinLayer"></div>
+</div>
+
+<header class="bar">
+  <div class="badge">P</div>
+  <h1>Prime <span>Martial Arts</span> · Explore the school</h1>
+  <div class="score"><span class="dot"></span><span id="scoreTxt">0 / 10 answered</span></div>
+</header>
+
+<nav class="nav" id="sceneNav"></nav>
+
+<aside id="panel">
+  <div class="panel-head">
+    <span class="loc" id="pLoc"></span>
+    <button class="close" id="pClose">✕</button>
+  </div>
+  <div class="panel-body" id="pBody"></div>
+</aside>
+
+<div class="overlay" id="helloOverlay">
+  <div class="box">
+    <div class="eyebrow">White belt orientation</div>
+    <h2>Explore the <span class="k">school</span></h2>
+    <p>This is the real building, shot by drone. Move room to room, tap the markers, and answer all 10 orientation questions before your first class.</p>
+    <button id="helloBtn">Start exploring</button>
+  </div>
+</div>
+
+<div class="overlay hide" id="finishOverlay">
+  <div class="box">
+    <div class="eyebrow">All 10 questions answered</div>
+    <h2>You're ready to <span class="k">bow in</span></h2>
+    <p>You've walked every room and covered every orientation rule. Show this screen at the front desk at your first class.</p>
+    <button id="againBtn">Explore again</button>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   SCENES & POINTS OF INTEREST
+   Pin positions are % of the ORIGINAL photo (x right, y down).
+   The mapper below corrects for object-fit:cover cropping.
+========================================================= */
+const SCENES = [
+  {
+    id:"entrance", tab:"Entrance", img:"clips/scene1_entrance.jpg", ar:4/3,
+    pois:[
+      {
+        x:93, y:46, icon:"1", tip:"The front door",
+        loc:"Entrance", title:"Coming through the front door",
+        video:"clips/stop1_entrance.mp4",
+        note:"Walk in and the front desk is straight ahead.",
+        questions:[{
+          q:"I am not allowed to attend class if I am more than _____ minutes late.",
+          a:"10 minutes.",
+          d:"Plan to arrive a few minutes early. If you are more than 10 minutes late, check with the front desk about attending the next class instead."
+        }]
+      },
+      {
+        x:66, y:60, icon:"2", tip:"The shoe rack",
+        loc:"Entrance", title:"Shoes off, right away",
+        video:"clips/stop2_shoerack.mp4",
+        note:"The cubbies are immediately inside the door. Street shoes stop here.",
+        questions:[{
+          q:"Are students, friends, and family allowed to walk on the Taekwondo mat with shoes on?",
+          a:"No.",
+          d:"Street shoes never touch the mat, and that includes friends and family. It keeps the floor clean and shows respect for the space."
+        }]
+      },
+      {
+        x:33, y:24, icon:"i", info:true, tip:"Best of Lawrence wall",
+        loc:"Entrance", title:"Best of Lawrence",
+        note:"Prime is consistently ranked among the best in Lawrence year after year. Every frame on this wall is a Best of Lawrence award."
+      }
+    ]
+  },
+  {
+    id:"lobby", tab:"Lobby", img:"clips/scene2_lobby.jpg", ar:4/3,
+    pois:[
+      {
+        x:35, y:44, icon:"3", tip:"The front desk",
+        loc:"Lobby", title:"Who to talk to",
+        video:"clips/stop3_frontdesk.mp4",
+        note:"Belt tests, schedules, gear, and billing all run through the front desk.",
+        questions:[{
+          q:"True or False? All instructors in the school must be referred to by last name.",
+          a:"True.",
+          d:"Instructors are addressed as Mr. or Ms. plus their last name, every time."
+        },{
+          q:"When an instructor gives me a command, I should respond with a “Yes/No _____” or “Yes/No _____”.",
+          a:"Sir or Ma'am.",
+          d:"Respond with a clear “Yes sir” or “Yes ma'am” so your instructor knows you heard the command."
+        }]
+      },
+      {
+        x:62, y:72, icon:"i", info:true, tip:"Seating for friends and family",
+        loc:"Lobby", title:"The waiting area",
+        note:"Friends, family, and waiting students watch class from these benches."
+      }
+    ]
+  },
+  {
+    id:"hallway", tab:"Hallway", img:"clips/scene3_hallway.jpg", ar:4/3,
+    pois:[
+      {
+        x:73, y:47, icon:"4", tip:"Restrooms · changing",
+        loc:"Hallway", title:"Where to change",
+        video:"clips/stop4_restrooms.mp4",
+        note:"Two restrooms, right off the lobby. Come dressed when you can, or change here before class.",
+        questions:[{
+          q:"If I want to wear an undershirt with my uniform, what color must the shirt be?",
+          a:"White.",
+          d:"Plain white only."
+        },{
+          q:"What jewelry are you allowed to wear to class?",
+          a:"A wedding band and studded earrings.",
+          d:"Everything else comes off before class for safety."
+        }]
+      },
+      {
+        x:54.5, y:55, icon:"5", tip:"Water fountains",
+        loc:"Hallway", title:"Water fountains",
+        video:"clips/stop5_fountains.mp4",
+        note:"Fill your bottle before class. The fountains are right outside the training floor.",
+        questions:[{
+          q:"There is no food or drink allowed on the Taekwondo mat other than _____.",
+          a:"Bottled water.",
+          d:"Snacks and drinks stay in the lobby. A sealed water bottle is the only thing that goes to the floor with you."
+        }]
+      },
+      {
+        x:13, y:40, icon:"i", info:true, tip:"Check-in station",
+        loc:"Hallway", title:"Tap in for class",
+        note:"Check in on this tablet before every class. Attendance counts toward your next belt test."
+      }
+    ]
+  },
+  {
+    id:"floor", tab:"Training floor", img:"clips/scene4_floor.jpg", ar:4/3,
+    pois:[
+      {
+        x:27, y:34, icon:"6", tip:"The belt display",
+        loc:"Training floor", title:"Respect the belt",
+        video:"clips/stop6_beltwall.mp4",
+        note:"Every rank in the school, white to black, hangs on this wall.",
+        questions:[{
+          q:"When I tie my belt, the left and right sides are even. What does this show an equal balance of?",
+          a:"Mind and body.",
+          d:"The even ends represent an equal balance of mind and body. Every rank ties the belt the same way."
+        },{
+          q:"It is important to keep my uniform clean, but the one part of my uniform that I never wash is my _____.",
+          a:"Belt.",
+          d:"Tradition holds that the belt carries the record of your training. Wash the uniform, never the belt."
+        }]
+      },
+      {
+        x:50, y:80, icon:"7", tip:"The edge of the mat",
+        loc:"Training floor", title:"Where the floor begins",
+        video:"clips/stop7_mat.mp4",
+        note:"This line marks the start of the training floor.",
+        questions:[{
+          q:"Every time I enter or exit the Taekwondo mat, I need to _____.",
+          a:"Bow.",
+          d:"Bow every time you step on and every time you step off."
+        }]
+      }
+    ]
+  }
+];
+const TOTAL_Q = SCENES.flatMap(s=>s.pois).reduce((n,p)=>n+(p.questions?p.questions.length:0),0);
+let sceneIdx = 0;
+let answered = {};   // "poiKey-qIdx" : true
+/* ---------- scene nav ---------- */
+const nav = document.getElementById('sceneNav');
+SCENES.forEach((s,i)=>{
+  const b=document.createElement('button');
+  b.className='scene-tab'+(i===0?' on':'');
+  b.innerHTML=`<span class="n">${i+1}</span>${s.tab}`;
+  b.addEventListener('click',()=>showScene(i));
+  nav.appendChild(b);
+});
+/* ---------- stage / pin mapping ---------- */
+const img = document.getElementById('sceneImg');
+const layer = document.getElementById('pinLayer');
+function poiKey(si,pi){return si+'-'+pi}
+function renderPins(){
+  layer.innerHTML='';
+  const sc = SCENES[sceneIdx];
+  const vw = innerWidth, vh = innerHeight;
+  const imgAr = sc.ar, vpAr = vw/vh;
+  /* object-fit:cover math - map natural % to viewport px */
+  let dw, dh, ox, oy;
+  if(vpAr > imgAr){ dw=vw; dh=vw/imgAr; ox=0; oy=(vh-dh)/2; }
+  else{ dh=vh; dw=vh*imgAr; oy=0; ox=(vw-dw)/2; }
+  sc.pois.forEach((p,pi)=>{
+    let px = ox + dw*(p.x/100);
+    let py = oy + dh*(p.y/100);
+    /* clamp into the safe zone so pins never hide under the
+       top bar or the scene tabs, whatever the window shape */
+    px = Math.min(Math.max(px, 34), vw - 34);
+    py = Math.min(Math.max(py, 78), vh - 96);
+    const el=document.createElement('button');
+    const key=poiKey(sceneIdx,pi);
+    const done = p.questions && p.questions.every((_,qi)=>answered[key+'-'+qi]);
+    el.className='pin'+(p.info?' info':'')+(done?' done':'');
+    el.style.left=px+'px'; el.style.top=py+'px';
+    el.innerHTML=`${done?'✓':p.icon}<span class="tip">${p.tip}</span>`;
+    el.addEventListener('click',()=>openPanel(pi));
+    layer.appendChild(el);
+  });
+}
+function showScene(i){
+  if(i===sceneIdx && img.dataset.ready){ return; }
+  sceneIdx=i;
+  [...nav.children].forEach((b,bi)=>b.classList.toggle('on',bi===i));
+  img.classList.add('fading');
+  closePanel();
+  setTimeout(()=>{
+    img.src=SCENES[i].img;
+    img.onload=()=>{ img.classList.remove('fading'); img.dataset.ready=1; renderPins(); };
+  },220);
+}
+addEventListener('resize',renderPins);
+img.onload=()=>renderPins();
+/* image may already be complete (cache) before this script ran */
+if(img.complete && img.naturalWidth) renderPins();
+/* ---------- panel ---------- */
+const panel=document.getElementById('panel');
+const pLoc=document.getElementById('pLoc');
+const pBody=document.getElementById('pBody');
+let openPoi=null;
+function openPanel(pi){
+  const sc=SCENES[sceneIdx], p=sc.pois[pi];
+  openPoi=pi;
+  pLoc.textContent=p.loc;
+  let html=`<h2>${p.title}</h2>`;
+  if(p.video) html+=`<div class="panel-media"><video src="${p.video}" muted loop playsinline autoplay></video></div>`;
+  if(p.note) html+=`<p class="p-note">${p.note}</p>`;
+  if(p.questions){
+    const key=poiKey(sceneIdx,pi);
+    html+=p.questions.map((q,qi)=>`
+      <div class="qblock">
+        <div class="q-label">Question${p.questions.length>1?' '+(qi+1)+' of '+p.questions.length:''}</div>
+        <div class="q-text">${q.q}</div>
+        <button class="reveal-btn" data-k="${key}-${qi}" data-qi="${qi}">${answered[key+'-'+qi]?'Answered ✓ (show again)':'Reveal answer'}</button>
+        <div class="answer ${answered[key+'-'+qi]?'':''}" id="a-${key}-${qi}">
+          <div class="a-label">Answer</div>
+          <p>${q.a}</p>
+          <p>${q.d}</p>
+        </div>
+      </div>`).join('');
+  }
+  pBody.innerHTML=html;
+  panel.classList.add('open');
+  const v=pBody.querySelector('video');
+  if(v) v.play().catch(()=>{});
+}
+function closePanel(){
+  panel.classList.remove('open');
+  const v=pBody.querySelector('video');
+  if(v) v.pause();
+  openPoi=null;
+}
+document.getElementById('pClose').addEventListener('click',closePanel);
+pBody.addEventListener('click',e=>{
+  const btn=e.target.closest('.reveal-btn');
+  if(!btn) return;
+  const k=btn.dataset.k;
+  const ans=document.getElementById('a-'+k);
+  const showing=ans.classList.toggle('show');
+  if(showing && !answered[k]){
+    answered[k]=true;
+    btn.textContent='Answered ✓ (hide)';
+    updateScore();
+    renderPins();
+  } else {
+    btn.textContent=answered[k]?'Answered ✓ (show again)':'Reveal answer';
+  }
+});
+/* ---------- score / finish ---------- */
+const scoreTxt=document.getElementById('scoreTxt');
+function updateScore(){
+  const n=Object.keys(answered).length;
+  scoreTxt.textContent=`${n} / ${TOTAL_Q} answered`;
+  if(n>=TOTAL_Q){
+    setTimeout(()=>{
+      const f=document.getElementById('finishOverlay');
+      f.classList.add('on');
+      f.classList.remove('hide');
+    },600);
+  }
+}
+document.getElementById('helloBtn').addEventListener('click',()=>{
+  document.getElementById('helloOverlay').classList.add('hide');
+});
+document.getElementById('againBtn').addEventListener('click',()=>{
+  answered={};
+  updateScoreSilent();
+  document.getElementById('finishOverlay').classList.add('hide');
+  setTimeout(()=>document.getElementById('finishOverlay').classList.remove('on'),400);
+  showScene(0);
+  renderPins();
+});
+function updateScoreSilent(){
+  scoreTxt.textContent=`0 / ${TOTAL_Q} answered`;
+}
+updateScoreSilent();
+</script>
+</body>
+</html>

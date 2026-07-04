@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prime Martial Arts - New Student Tour</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* Palette - drawn from the school: mat black, dobok white, Prime blue */
+    --ink:#111214;
+    --ink-2:#1b1d21;
+    --ink-3:#26292e;
+    --paper:#f2f4f6;
+    --paper-dim:#b9c0c7;
+    --blue:#1f7fd0;          /* Prime wall blue */
+    --blue-deep:#14588f;
+    --accent:#5db2f0;        /* light blue accent */
+    --accent-soft:#9fd0f5;
+    --line:#33373d;
+    --belt-white:#efece4;
+    --belt-orange:#e07b28;
+    --belt-yellow:#e6b422;
+    --belt-camo:#7d8a5c;
+    --belt-green:#3f8f56;
+    --belt-purple:#6b4a94;
+    --belt-blue:#2f6fb0;
+    --belt-brown:#6f4a2f;
+    --belt-red:#c0392b;
+    --belt-black:#161616;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:"Barlow",system-ui,sans-serif;
+    font-size:17px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  .top{
+    position:sticky;top:0;z-index:50;
+    background:linear-gradient(180deg, rgba(17,18,20,.97), rgba(17,18,20,.82));
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .top-inner{
+    max-width:900px;margin:0 auto;padding:14px 22px;
+    display:flex;align-items:center;gap:14px;
+  }
+  .badge{
+    width:34px;height:34px;flex:none;border-radius:6px;
+    background:var(--blue);
+    display:grid;place-items:center;
+    font-family:"Oswald";font-weight:700;color:#fff;
+    font-size:19px;letter-spacing:.5px;
+    box-shadow:inset 0 0 0 2px rgba(245,243,238,.15);
+  }
+  .top h1{
+    font-family:"Oswald";font-weight:600;font-size:18px;
+    letter-spacing:.14em;text-transform:uppercase;
+  }
+  .top h1 span{color:var(--accent)}
+  .top .sub{
+    margin-left:auto;font-size:12px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--paper-dim);font-family:"Oswald";font-weight:500;
+  }
+  .rail{height:3px;background:var(--ink-3)}
+  .rail-fill{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--accent));transition:width .5s cubic-bezier(.4,0,.2,1)}
+  .hero{
+    max-width:900px;margin:0 auto;padding:64px 22px 40px;
+    text-align:center;position:relative;
+  }
+  .eyebrow{
+    font-family:"Oswald";font-weight:600;font-size:13px;
+    letter-spacing:.32em;text-transform:uppercase;color:var(--accent);
+    margin-bottom:20px;
+  }
+  .hero h2{
+    font-family:"Oswald";font-weight:700;
+    font-size:clamp(38px,8vw,68px);line-height:.98;
+    letter-spacing:-.01em;text-transform:uppercase;
+  }
+  .hero h2 .k{color:var(--accent)}
+  .hero p{
+    max-width:520px;margin:22px auto 0;color:var(--paper-dim);
+    font-size:18px;
+  }
+  .start{
+    margin-top:34px;display:inline-flex;align-items:center;gap:12px;
+    background:var(--blue);color:#fff;border:none;cursor:pointer;
+    font-family:"Oswald";font-weight:600;font-size:16px;
+    letter-spacing:.14em;text-transform:uppercase;
+    padding:15px 30px;border-radius:4px;
+    transition:transform .15s, background .2s, box-shadow .2s;
+    box-shadow:0 6px 20px rgba(31,127,208,.28);
+  }
+  .start:hover{background:var(--blue-deep);transform:translateY(-2px);box-shadow:0 10px 26px rgba(31,127,208,.36)}
+  .start:active{transform:translateY(0)}
+  .start .arw{font-size:20px;line-height:1;transition:transform .2s}
+  .start:hover .arw{transform:translateX(4px)}
+  .hero-note{
+    margin-top:18px;font-size:13px;color:var(--paper-dim);
+    letter-spacing:.02em;
+  }
+  .tour{max-width:900px;margin:0 auto;padding:20px 22px 100px;position:relative}
+  .stop{
+    position:relative;
+    padding:34px 0 34px 78px;
+    opacity:.38;
+    transition:opacity .5s;
+  }
+  .stop.active,.stop.done{opacity:1}
+  @media (max-width:600px){ .stop{padding-left:60px} }
+  .spine{
+    position:absolute;left:26px;top:0;bottom:0;width:6px;
+    background:var(--ink-3);border-radius:3px;
+  }
+  @media (max-width:600px){ .spine{left:18px} }
+  .spine-fill{
+    position:absolute;left:0;top:0;width:100%;height:0;border-radius:3px;
+    background:var(--accent);transition:height .6s cubic-bezier(.4,0,.2,1);
+  }
+  .knot{
+    position:absolute;left:14px;top:38px;
+    width:30px;height:30px;border-radius:50%;
+    background:var(--ink-3);border:3px solid var(--ink);
+    display:grid;place-items:center;z-index:2;
+    font-family:"Oswald";font-weight:700;font-size:13px;color:var(--paper-dim);
+    transition:all .4s;
+  }
+  @media (max-width:600px){ .knot{left:6px} }
+  .stop.active .knot,.stop.done .knot{
+    background:var(--belt);color:#fff;border-color:var(--ink);
+    box-shadow:0 0 0 4px rgba(93,178,240,.18);
+  }
+  .stop.done .knot::after{content:"✓";font-size:15px}
+  .stop.done .knot span{display:none}
+  .card{
+    background:var(--ink-2);
+    border:1px solid var(--line);
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  .card-head{
+    display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+    padding:16px 20px 0;
+  }
+  .stop-belt{
+    font-family:"Oswald";font-weight:600;font-size:11px;
+    letter-spacing:.2em;text-transform:uppercase;
+    color:var(--ink);background:var(--belt);
+    padding:3px 9px;border-radius:3px;
+  }
+  .stop-belt.on-dark{color:#fff}
+  .stop-loc{
+    font-family:"Oswald";font-weight:600;font-size:12px;
+    letter-spacing:.18em;text-transform:uppercase;color:var(--paper-dim);
+  }
+  .card-head h3{
+    flex-basis:100%;
+    font-family:"Oswald";font-weight:600;font-size:24px;
+    letter-spacing:.01em;margin-top:6px;
+  }
+  .media{
+    margin:16px 20px 0;
+    aspect-ratio:16/9;border-radius:8px;overflow:hidden;
+    background:
+      repeating-linear-gradient(45deg,#212429 0 12px,#1c1f23 12px 24px);
+    border:1px solid var(--line);
+    position:relative;display:grid;place-items:center;
+  }
+  .media video,.media img{width:100%;height:100%;object-fit:cover;display:block}
+  .shot-tag{
+    position:absolute;top:10px;left:10px;z-index:3;
+    font-family:"Oswald";font-weight:600;font-size:10px;
+    letter-spacing:.14em;text-transform:uppercase;
+    background:rgba(17,18,20,.8);color:var(--accent-soft);
+    padding:4px 8px;border-radius:3px;border:1px solid var(--line);
+  }
+  .q{padding:18px 20px 20px}
+  .qblock + .qblock{margin-top:22px;border-top:1px solid var(--line);padding-top:18px}
+  .q-label{
+    font-family:"Oswald";font-weight:600;font-size:11px;
+    letter-spacing:.2em;text-transform:uppercase;color:var(--accent);
+    margin-bottom:8px;
+  }
+  .q-text{font-size:20px;font-weight:500;line-height:1.35}
+  .reveal-btn{
+    margin-top:16px;width:100%;
+    background:transparent;color:var(--accent);
+    border:1.5px solid var(--accent);border-radius:5px;cursor:pointer;
+    font-family:"Oswald";font-weight:600;font-size:14px;
+    letter-spacing:.14em;text-transform:uppercase;
+    padding:12px;transition:all .2s;
+    display:flex;align-items:center;justify-content:center;gap:10px;
+  }
+  .reveal-btn:hover{background:rgba(93,178,240,.1)}
+  .reveal-btn .chev{transition:transform .3s}
+  .answer{
+    max-height:0;overflow:hidden;
+    transition:max-height .45s cubic-bezier(.4,0,.2,1);
+  }
+  .answer-inner{
+    margin-top:14px;padding:16px 18px;
+    background:var(--ink-3);border-left:3px solid var(--accent);
+    border-radius:0 6px 6px 0;
+  }
+  .answer-inner .a-label{
+    font-family:"Oswald";font-weight:600;font-size:11px;
+    letter-spacing:.2em;text-transform:uppercase;color:var(--accent);
+    margin-bottom:6px;
+  }
+  .answer-inner p{color:var(--paper)}
+  .answer-inner p + p{margin-top:8px;color:var(--paper-dim);font-size:15px}
+  .next-btn{
+    margin-top:22px;width:100%;
+    background:var(--ink-3);color:var(--paper);
+    border:1px solid var(--line);border-radius:5px;cursor:pointer;
+    font-family:"Oswald";font-weight:600;font-size:14px;
+    letter-spacing:.14em;text-transform:uppercase;
+    padding:13px;transition:all .2s;
+    display:none;align-items:center;justify-content:center;gap:10px;
+  }
+  .next-btn:hover{background:var(--blue);border-color:var(--blue)}
+  .next-btn .arw{transition:transform .2s}
+  .next-btn:hover .arw{transform:translateX(4px)}
+  .stop.locked .card{filter:saturate(.4) brightness(.7)}
+  .stop.locked .reveal-btn,.stop.locked .next-btn{pointer-events:none;opacity:.5}
+  .finish{
+    max-width:900px;margin:0 auto;padding:10px 22px 40px;
+    text-align:center;opacity:0;transform:translateY(14px);
+    transition:opacity .6s,transform .6s;pointer-events:none;
+  }
+  .finish.show{opacity:1;transform:none;pointer-events:auto}
+  .finish-card{
+    background:linear-gradient(160deg,var(--ink-2),var(--ink-3));
+    border:1px solid var(--blue);border-radius:14px;
+    padding:44px 30px;position:relative;overflow:hidden;
+  }
+  .finish-card::before{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(circle at 50% -20%,rgba(31,127,208,.2),transparent 60%);
+  }
+  .finish h2{
+    font-family:"Oswald";font-weight:700;font-size:clamp(28px,6vw,44px);
+    text-transform:uppercase;letter-spacing:.02em;position:relative;
+  }
+  .finish h2 .k{color:var(--accent)}
+  .finish p{max-width:460px;margin:16px auto 0;color:var(--paper-dim);position:relative}
+  .finish .beltbar{
+    display:flex;gap:4px;justify-content:center;margin:26px auto 0;
+    max-width:340px;position:relative;
+  }
+  .finish .beltbar i{height:8px;flex:1;border-radius:2px}
+  .restart{
+    margin-top:30px;position:relative;
+    background:transparent;color:var(--paper-dim);border:1px solid var(--line);
+    border-radius:4px;cursor:pointer;
+    font-family:"Oswald";font-weight:500;font-size:13px;
+    letter-spacing:.14em;text-transform:uppercase;padding:11px 22px;
+    transition:all .2s;
+  }
+  .restart:hover{color:var(--paper);border-color:var(--paper-dim)}
+  .flyover{
+    max-width:900px;margin:0 auto;padding:20px 22px 90px;
+  }
+  .flyover h3{
+    font-family:"Oswald";font-weight:600;font-size:15px;
+    letter-spacing:.2em;text-transform:uppercase;color:var(--paper-dim);
+    text-align:center;margin-bottom:14px;
+  }
+  .flyover .frame{
+    aspect-ratio:16/9;border-radius:10px;overflow:hidden;
+    border:1px solid var(--line);background:#000;
+  }
+  .flyover video{width:100%;height:100%;display:block}
+  .foot{
+    text-align:center;padding:0 22px 50px;color:#555a61;font-size:12px;
+    letter-spacing:.04em;
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important;scroll-behavior:auto!important}
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <div class="badge">P</div>
+    <h1>Prime <span>Martial Arts</span></h1>
+    <div class="sub">New Student Tour</div>
+  </div>
+  <div class="rail"><div class="rail-fill" id="railFill"></div></div>
+</header>
+<section class="hero">
+  <div class="eyebrow">Welcome to the mat</div>
+  <h2>Your first walk<br>through the <span class="k">dojang</span></h2>
+  <p>Before your first class, take the tour. We'll walk you through the school stop by stop. Each stop covers one of the orientation rules every new student learns. Answer all ten questions and you're ready for day one.</p>
+  <button class="start" id="startBtn">Begin the tour <span class="arw">→</span></button>
+  <div class="hero-note">7 stops · 10 questions · about 4 minutes</div>
+</section>
+<main class="tour" id="tour">
+  <div class="spine"><div class="spine-fill" id="spineFill"></div></div>
+  <!-- stops injected here -->
+</main>
+<section class="finish" id="finish">
+  <div class="finish-card">
+    <h2>You made it to the <span class="k">floor</span></h2>
+    <p>That's the tour and all ten orientation questions. You know where your shoes go, how to address your instructors, and why the belt never gets washed. We'll see you at your first class.</p>
+    <div class="beltbar" id="finishBelts"></div>
+    <button class="restart" id="restartBtn">Take the tour again</button>
+  </div>
+</section>
+<section class="flyover">
+  <h3>Bonus · Watch the full drone flyover</h3>
+  <div class="frame"><video src="clips/full_flyover.mp4" controls preload="metadata" playsinline></video></div>
+</section>
+<div class="foot">Prime Martial Arts · Lawrence, KS</div>
+<script>
+/* ---------------------------------------------------------
+   TOUR DATA - official White Belt Orientation questions,
+   placed at the spot in the school where each rule lives.
+--------------------------------------------------------- */
+const STOPS = [
+  {
+    belt:"White", beltVar:"--belt-white", onDark:false,
+    loc:"Stop 01 · Entrance",
+    title:"Coming through the front door",
+    shot:"Drone · entrance reveal",
+    video:"clips/stop1_entrance.mp4",
+    questions:[{
+      q:"I am not allowed to attend class if I am more than _____ minutes late.",
+      a:"10 minutes.",
+      d:"Plan to arrive a few minutes early. If you are more than 10 minutes late, check with the front desk about attending the next class instead."
+    }]
+  },
+  {
+    belt:"Orange", beltVar:"--belt-orange", onDark:true,
+    loc:"Stop 02 · Shoe rack",
+    title:"Shoes off, right away",
+    shot:"Drone · shoe cubbies",
+    video:"clips/stop2_shoerack.mp4",
+    questions:[{
+      q:"Are students, friends, and family allowed to walk on the Taekwondo mat with shoes on?",
+      a:"No.",
+      d:"Street shoes never touch the mat, and that includes friends and family. The cubbies are right inside the front door."
+    }]
+  },
+  {
+    belt:"Yellow", beltVar:"--belt-yellow", onDark:false,
+    loc:"Stop 03 · Front desk",
+    title:"Who to talk to",
+    shot:"Drone · desk push-in",
+    video:"clips/stop3_frontdesk.mp4",
+    questions:[{
+      q:"True or False? All instructors in the school must be referred to by last name.",
+      a:"True.",
+      d:"Instructors are addressed as Mr. or Ms. plus their last name, every time."
+    },{
+      q:"When an instructor gives me a command, I should respond with a “Yes/No _____” or “Yes/No _____”.",
+      a:"Sir or Ma'am.",
+      d:"Respond with a clear “Yes sir” or “Yes ma'am” so your instructor knows you heard the command. You'll hear the whole class respond together."
+    }]
+  },
+  {
+    belt:"Camo", beltVar:"--belt-camo", onDark:true,
+    loc:"Stop 04 · Restrooms",
+    title:"Where to change",
+    shot:"Drone · restroom doors",
+    video:"clips/stop4_restrooms.mp4",
+    questions:[{
+      q:"If I want to wear an undershirt with my uniform, what color must the shirt be?",
+      a:"White.",
+      d:"Plain white only. Come dressed when you can, or use the restrooms for a quick change before class."
+    },{
+      q:"What jewelry are you allowed to wear to class?",
+      a:"A wedding band and studded earrings.",
+      d:"Everything else comes off before class for the safety of you and your training partners."
+    }]
+  },
+  {
+    belt:"Green", beltVar:"--belt-green", onDark:false,
+    loc:"Stop 05 · Water fountains",
+    title:"Water fountains",
+    shot:"Drone · fountain close-up",
+    video:"clips/stop5_fountains.mp4",
+    questions:[{
+      q:"There is no food or drink allowed on the Taekwondo mat other than _____.",
+      a:"Bottled water.",
+      d:"Snacks and drinks stay in the lobby. A sealed water bottle is the only thing that comes to the floor with you. The fountains are right here to fill it."
+    }]
+  },
+  {
+    belt:"Blue", beltVar:"--belt-blue", onDark:false,
+    loc:"Stop 06 · Belt display",
+    title:"Respect the belt",
+    shot:"Drone · belt rack & mat",
+    video:"clips/stop6_beltwall.mp4",
+    questions:[{
+      q:"When I tie my belt, the left and right sides are even. What does this show an equal balance of?",
+      a:"Mind and body.",
+      d:"The even ends represent an equal balance of mind and body. Every rank on this rack ties the belt the same way."
+    },{
+      q:"It is important to keep my uniform clean, but the one part of my uniform that I never wash is my _____.",
+      a:"Belt.",
+      d:"Tradition holds that the belt carries the record of your training. Wash the uniform, never the belt."
+    }]
+  },
+  {
+    belt:"Red", beltVar:"--belt-red", onDark:true,
+    loc:"Stop 07 · The mat",
+    title:"Where the floor begins",
+    shot:"Drone · training floor",
+    video:"clips/stop7_mat.mp4",
+    questions:[{
+      q:"Every time I enter or exit the Taekwondo mat, I need to _____.",
+      a:"Bow.",
+      d:"The edge of the mat marks the start of the training floor. Bow every time you step on and every time you step off."
+    }]
+  }
+];
+const TOTAL_Q = STOPS.reduce((n,s)=>n+s.questions.length,0);
+/* ---------------------------------------------------------
+   RENDER
+--------------------------------------------------------- */
+const tour = document.getElementById('tour');
+let current = 0;
+let revealedCount = 0;
+STOPS.forEach((s, i) => {
+  const el = document.createElement('article');
+  el.className = 'stop locked';
+  el.id = 'stop-' + i;
+  el.style.setProperty('--belt', `var(${s.beltVar})`);
+  const qHtml = s.questions.map((qq, j) => `
+    <div class="qblock">
+      <div class="q-label">Question${s.questions.length>1 ? ' '+(j+1)+' of '+s.questions.length : ''}</div>
+      <div class="q-text">${qq.q}</div>
+      <button class="reveal-btn" data-i="${i}" data-j="${j}">
+        Reveal answer <span class="chev">▾</span>
+      </button>
+      <div class="answer" id="ans-${i}-${j}">
+        <div class="answer-inner">
+          <div class="a-label">Answer</div>
+          <p>${qq.a}</p>
+          <p>${qq.d}</p>
+        </div>
+      </div>
+    </div>`).join('');
+  el.innerHTML = `
+    <div class="knot"><span>${i+1}</span></div>
+    <div class="card">
+      <div class="card-head">
+        <span class="stop-belt ${s.onDark?'on-dark':''}">${s.belt} belt</span>
+        <span class="stop-loc">${s.loc}</span>
+        <h3>${s.title}</h3>
+      </div>
+      <div class="media">
+        <span class="shot-tag">${s.shot}</span>
+        <video src="${s.video}" muted loop playsinline preload="metadata"></video>
+      </div>
+      <div class="q">
+        ${qHtml}
+        <button class="next-btn" data-next="${i}">
+          ${i === STOPS.length-1 ? 'Finish tour' : 'Next stop'} <span class="arw">→</span>
+        </button>
+      </div>
+    </div>`;
+  tour.appendChild(el);
+});
+/* play/pause stop videos only while on screen */
+const vidObserver = new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    const v = en.target;
+    if(en.isIntersecting && !v.closest('.stop').classList.contains('locked')){
+      v.play().catch(()=>{});
+    } else { v.pause(); }
+  });
+}, {threshold:.35});
+document.querySelectorAll('.stop video').forEach(v => vidObserver.observe(v));
+/* ---------------------------------------------------------
+   FLOW
+--------------------------------------------------------- */
+const railFill = document.getElementById('railFill');
+const spineFill = document.getElementById('spineFill');
+const finish = document.getElementById('finish');
+function unlock(i){
+  const el = document.getElementById('stop-' + i);
+  if(!el) return;
+  el.classList.remove('locked');
+  el.classList.add('active');
+  const v = el.querySelector('video');
+  if(v) v.play().catch(()=>{});
+}
+function updateProgress(){
+  const pct = (revealedCount / TOTAL_Q) * 100;
+  railFill.style.width = pct + '%';
+  spineFill.style.height = pct + '%';
+}
+function goToStop(i){
+  current = i;
+  unlock(i);
+  const el = document.getElementById('stop-' + i);
+  el.scrollIntoView({behavior:'smooth', block:'center'});
+}
+document.getElementById('startBtn').addEventListener('click', () => {
+  goToStop(0);
+});
+tour.addEventListener('click', (e) => {
+  const rev = e.target.closest('.reveal-btn');
+  if(rev){
+    const i = +rev.dataset.i, j = +rev.dataset.j;
+    const ans = document.getElementById(`ans-${i}-${j}`);
+    const isOpen = ans.style.maxHeight && ans.style.maxHeight !== '0px';
+    if(isOpen){
+      ans.style.maxHeight = '0px';
+      rev.querySelector('.chev').style.transform = 'rotate(0deg)';
+    } else {
+      ans.style.maxHeight = ans.scrollHeight + 40 + 'px';
+      rev.innerHTML = 'Hide answer <span class="chev" style="transform:rotate(180deg)">▾</span>';
+      if(!ans.dataset.revealed){
+        ans.dataset.revealed = "1";
+        revealedCount++;
+        updateProgress();
+      }
+      const stopEl = document.getElementById('stop-' + i);
+      const all = [...stopEl.querySelectorAll('.answer')].every(a => a.dataset.revealed);
+      if(all) stopEl.querySelector('.next-btn').style.display = 'flex';
+    }
+    return;
+  }
+  const nxt = e.target.closest('.next-btn');
+  if(nxt){
+    const i = +nxt.dataset.next;
+    const stopEl = document.getElementById('stop-' + i);
+    stopEl.classList.remove('active');
+    stopEl.classList.add('done');
+    if(i < STOPS.length - 1){
+      goToStop(i + 1);
+    } else {
+      finish.classList.add('show');
+      finish.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+  }
+});
+const finishBelts = document.getElementById('finishBelts');
+STOPS.forEach(s => {
+  const bar = document.createElement('i');
+  bar.style.background = `var(${s.beltVar})`;
+  finishBelts.appendChild(bar);
+});
+document.getElementById('restartBtn').addEventListener('click', () => {
+  document.querySelectorAll('.stop').forEach((el,i) => {
+    el.classList.remove('done','active');
+    el.classList.add('locked');
+    el.querySelectorAll('.answer').forEach(a => {
+      a.style.maxHeight = '0px';
+      delete a.dataset.revealed;
+    });
+    el.querySelectorAll('.reveal-btn').forEach(r => {
+      r.innerHTML = 'Reveal answer <span class="chev">▾</span>';
+    });
+    el.querySelector('.next-btn').style.display = 'none';
+  });
+  revealedCount = 0;
+  updateProgress();
+  finish.classList.remove('show');
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Prime Martial Arts - New Student Tour</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#111214; --ink-2:#1b1d21; --ink-3:#26292e;
+    --paper:#f2f4f6; --paper-dim:#b9c0c7;
+    --blue:#1f7fd0; --blue-deep:#14588f;
+    --accent:#5db2f0; --accent-soft:#9fd0f5;
+    --line:#33373d; --green:#2f9e57;
+    --belt-white:#efece4; --belt-orange:#e07b28; --belt-yellow:#e6b422;
+    --belt-camo:#7d8a5c; --belt-green:#3f8f56; --belt-blue:#2f6fb0;
+    --belt-red:#c0392b;
+    --safe-b: env(safe-area-inset-bottom, 0px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overscroll-behavior:none}
+  body{
+    background:var(--ink);color:var(--paper);
+    font-family:"Barlow",system-ui,sans-serif;font-size:16px;line-height:1.5;
+    overflow:hidden;-webkit-font-smoothing:antialiased;
+  }
+  /* ---------- top ---------- */
+  .top{
+    position:fixed;top:0;left:0;right:0;z-index:30;
+    background:linear-gradient(180deg, rgba(17,18,20,.97), rgba(17,18,20,.86));
+    border-bottom:1px solid var(--line);
+    padding-top:env(safe-area-inset-top,0px);
+  }
+  .top-inner{display:flex;align-items:center;gap:10px;padding:10px 14px}
+  .badge{
+    width:28px;height:28px;flex:none;border-radius:6px;background:var(--blue);
+    display:grid;place-items:center;font-family:"Oswald";font-weight:700;
+    color:#fff;font-size:16px;
+  }
+  .top h1{
+    font-family:"Oswald";font-weight:600;font-size:13px;
+    letter-spacing:.12em;text-transform:uppercase;
+  }
+  .top h1 span{color:var(--accent)}
+  .score{
+    margin-left:auto;font-family:"Oswald";font-weight:600;font-size:11px;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--paper-dim);
+  }
+  .rail{height:3px;background:var(--ink-3)}
+  .rail-fill{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--accent));transition:width .4s}
+  .dots{display:flex;gap:5px;justify-content:center;padding:7px 0 8px}
+  .dots i{width:7px;height:7px;border-radius:50%;background:var(--ink-3);border:1.5px solid var(--line);transition:all .3s}
+  .dots i.on{background:var(--belt,--blue);border-color:transparent;background:var(--accent)}
+  .dots i.done{background:var(--green);border-color:transparent}
+  /* ---------- deck / slides ---------- */
+  #deck{
+    display:flex;height:100dvh;
+    transition:transform .34s cubic-bezier(.3,0,.2,1);
+    will-change:transform;
+  }
+  .slide{
+    width:100vw;flex:none;height:100%;
+    overflow-y:auto;-webkit-overflow-scrolling:touch;
+    padding:98px 18px calc(120px + var(--safe-b));
+  }
+  /* start slide */
+  .start-wrap{min-height:100%;display:flex;flex-direction:column;justify-content:center;text-align:center}
+  .eyebrow{
+    font-family:"Oswald";font-weight:600;font-size:12px;
+    letter-spacing:.3em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;
+  }
+  .start-wrap h2{
+    font-family:"Oswald";font-weight:700;font-size:clamp(34px,10vw,44px);
+    line-height:1;text-transform:uppercase;
+  }
+  .start-wrap h2 .k{color:var(--accent)}
+  .start-wrap p{color:var(--paper-dim);margin:16px auto 0;max-width:320px;font-size:16.5px}
+  .hint{margin-top:26px;color:var(--paper-dim);font-size:13px;letter-spacing:.04em}
+  /* stop slide */
+  .chiprow{display:flex;align-items:center;gap:9px;margin-bottom:12px}
+  .stop-belt{
+    font-family:"Oswald";font-weight:600;font-size:10.5px;
+    letter-spacing:.16em;text-transform:uppercase;
+    color:var(--ink);background:var(--belt);padding:3px 8px;border-radius:3px;
+  }
+  .stop-belt.on-dark{color:#fff}
+  .stop-loc{
+    font-family:"Oswald";font-weight:600;font-size:11px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--paper-dim);
+  }
+  .media{
+    aspect-ratio:16/9;border-radius:10px;overflow:hidden;
+    border:1px solid var(--line);background:#000;margin-bottom:14px;
+  }
+  .media video{width:100%;height:100%;object-fit:cover;display:block}
+  h3.title{font-family:"Oswald";font-weight:600;font-size:23px;margin-bottom:4px}
+  .qblock{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+  .qblock:first-of-type{border-top:none;padding-top:6px}
+  .q-label{
+    font-family:"Oswald";font-weight:600;font-size:10.5px;
+    letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;
+  }
+  .q-text{font-size:18px;font-weight:500;line-height:1.4}
+  .reveal-btn{
+    margin-top:12px;width:100%;min-height:48px;
+    background:transparent;color:var(--accent);
+    border:1.5px solid var(--accent);border-radius:8px;cursor:pointer;
+    font-family:"Oswald";font-weight:600;font-size:14px;
+    letter-spacing:.12em;text-transform:uppercase;
+  }
+  .reveal-btn:active{background:rgba(93,178,240,.15)}
+  .answer{display:none;margin-top:12px;padding:13px 14px;
+    background:var(--ink-3);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;
+  }
+  .answer.show{display:block}
+  .answer .a-label{
+    font-family:"Oswald";font-weight:600;font-size:10px;
+    letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:4px;
+  }
+  .answer p+p{margin-top:6px;color:var(--paper-dim);font-size:14px}
+  /* finish slide */
+  .finish-wrap{min-height:100%;display:flex;flex-direction:column;justify-content:center;text-align:center}
+  .beltbar{display:flex;gap:4px;justify-content:center;margin:22px auto 0;max-width:300px;width:100%}
+  .beltbar i{height:7px;flex:1;border-radius:2px}
+  .flyover{margin-top:26px}
+  .flyover h4{
+    font-family:"Oswald";font-weight:600;font-size:12px;
+    letter-spacing:.18em;text-transform:uppercase;color:var(--paper-dim);margin-bottom:10px;
+  }
+  .flyover .frame{aspect-ratio:16/9;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:#000}
+  .flyover video{width:100%;height:100%;display:block}
+  /* ---------- bottom bar ---------- */
+  .bottom{
+    position:fixed;left:0;right:0;bottom:0;z-index:30;
+    display:flex;gap:10px;align-items:center;
+    padding:12px 16px calc(12px + var(--safe-b));
+    background:linear-gradient(0deg, rgba(17,18,20,.97) 60%, rgba(17,18,20,0));
+  }
+  .backbtn{
+    width:52px;min-height:54px;flex:none;
+    background:var(--ink-2);color:var(--paper-dim);
+    border:1px solid var(--line);border-radius:12px;font-size:20px;cursor:pointer;
+  }
+  .backbtn:disabled{opacity:.3}
+  .nextbtn{
+    flex:1;min-height:54px;
+    background:var(--blue);color:#fff;border:none;border-radius:12px;cursor:pointer;
+    font-family:"Oswald";font-weight:600;font-size:16px;
+    letter-spacing:.12em;text-transform:uppercase;
+    box-shadow:0 6px 18px rgba(31,127,208,.3);
+    transition:opacity .2s, background .2s;
+  }
+  .nextbtn:disabled{
+    background:var(--ink-2);color:var(--paper-dim);
+    border:1px solid var(--line);box-shadow:none;
+    font-size:13px;letter-spacing:.08em;
+  }
+  .nextbtn:active:not(:disabled){background:var(--blue-deep)}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<script>
+/* route real desktops back to the desktop version */
+if(!matchMedia('(pointer:coarse)').matches && !new URLSearchParams(location.search).has('mobile')){
+  location.replace('tour.html?desktop=1');
+}
+</script>
+<header class="top">
+  <div class="top-inner">
+    <div class="badge">P</div>
+    <h1>Prime <span>Martial Arts</span></h1>
+    <div class="score" id="scoreTxt">0 / 10</div>
+  </div>
+  <div class="rail"><div class="rail-fill" id="railFill"></div></div>
+  <div class="dots" id="dots"></div>
+</header>
+
+<div id="deck"></div>
+
+<div class="bottom">
+  <button class="backbtn" id="backBtn">‹</button>
+  <button class="nextbtn" id="nextBtn">Begin the tour</button>
+</div>
+
+<script>
+const STOPS = [
+  {
+    belt:"White", beltVar:"--belt-white", onDark:false,
+    loc:"Stop 1 · Entrance", title:"Coming through the front door",
+    video:"clips/stop1_entrance.mp4",
+    questions:[{
+      q:"I am not allowed to attend class if I am more than _____ minutes late.",
+      a:"10 minutes.",
+      d:"Plan to arrive a few minutes early. If you are more than 10 minutes late, check with the front desk about attending the next class instead."
+    }]
+  },
+  {
+    belt:"Orange", beltVar:"--belt-orange", onDark:true,
+    loc:"Stop 2 · Shoe rack", title:"Shoes off, right away",
+    video:"clips/stop2_shoerack.mp4",
+    questions:[{
+      q:"Are students, friends, and family allowed to walk on the Taekwondo mat with shoes on?",
+      a:"No.",
+      d:"Street shoes never touch the mat, and that includes friends and family. The cubbies are right inside the front door."
+    }]
+  },
+  {
+    belt:"Yellow", beltVar:"--belt-yellow", onDark:false,
+    loc:"Stop 3 · Front desk", title:"Who to talk to",
+    video:"clips/stop3_frontdesk.mp4",
+    questions:[{
+      q:"True or False? All instructors in the school must be referred to by last name.",
+      a:"True.",
+      d:"Instructors are addressed as Mr. or Ms. plus their last name, every time."
+    },{
+      q:"When an instructor gives me a command, I should respond with a “Yes/No _____” or “Yes/No _____”.",
+      a:"Sir or Ma'am.",
+      d:"Respond with a clear “Yes sir” or “Yes ma'am” so your instructor knows you heard the command."
+    }]
+  },
+  {
+    belt:"Camo", beltVar:"--belt-camo", onDark:true,
+    loc:"Stop 4 · Restrooms", title:"Where to change",
+    video:"clips/stop4_restrooms.mp4",
+    questions:[{
+      q:"If I want to wear an undershirt with my uniform, what color must the shirt be?",
+      a:"White.",
+      d:"Plain white only. Come dressed when you can, or use the restrooms for a quick change before class."
+    },{
+      q:"What jewelry are you allowed to wear to class?",
+      a:"A wedding band and studded earrings.",
+      d:"Everything else comes off before class for the safety of you and your training partners."
+    }]
+  },
+  {
+    belt:"Green", beltVar:"--belt-green", onDark:false,
+    loc:"Stop 5 · Water fountains", title:"Water fountains",
+    video:"clips/stop5_fountains.mp4",
+    questions:[{
+      q:"There is no food or drink allowed on the Taekwondo mat other than _____.",
+      a:"Bottled water.",
+      d:"Snacks and drinks stay in the lobby. A sealed water bottle is the only thing that comes to the floor with you. The fountains are right here to fill it."
+    }]
+  },
+  {
+    belt:"Blue", beltVar:"--belt-blue", onDark:false,
+    loc:"Stop 6 · Belt display", title:"Respect the belt",
+    video:"clips/stop6_beltwall.mp4",
+    questions:[{
+      q:"When I tie my belt, the left and right sides are even. What does this show an equal balance of?",
+      a:"Mind and body.",
+      d:"The even ends represent an equal balance of mind and body. Every rank on this rack ties the belt the same way."
+    },{
+      q:"It is important to keep my uniform clean, but the one part of my uniform that I never wash is my _____.",
+      a:"Belt.",
+      d:"Tradition holds that the belt carries the record of your training. Wash the uniform, never the belt."
+    }]
+  },
+  {
+    belt:"Red", beltVar:"--belt-red", onDark:true,
+    loc:"Stop 7 · The mat", title:"Where the floor begins",
+    video:"clips/stop7_mat.mp4",
+    questions:[{
+      q:"Every time I enter or exit the Taekwondo mat, I need to _____.",
+      a:"Bow.",
+      d:"Bow every time you step on and every time you step off."
+    }]
+  }
+];
+const TOTAL_Q = STOPS.reduce((n,s)=>n+s.questions.length,0);
+const N = STOPS.length + 2; /* start + stops + finish */
+let idx = 0;
+let answered = {};
+/* ---------- build slides ---------- */
+const deck = document.getElementById('deck');
+/* start */
+deck.insertAdjacentHTML('beforeend', `
+  <section class="slide"><div class="start-wrap">
+    <div class="eyebrow">Welcome to the mat</div>
+    <h2>Your first walk<br>through the <span class="k">dojang</span></h2>
+    <p>Seven stops through the school. Each one covers an orientation rule every new student learns. Answer all ten questions and you're ready for day one.</p>
+    <div class="hint">Swipe or tap the button to move between stops</div>
+  </div></section>`);
+/* stops */
+STOPS.forEach((s,i)=>{
+  const qHtml = s.questions.map((qq,j)=>`
+    <div class="qblock">
+      <div class="q-label">Question${s.questions.length>1?' '+(j+1)+' of '+s.questions.length:''}</div>
+      <div class="q-text">${qq.q}</div>
+      <button class="reveal-btn" data-i="${i}" data-j="${j}">Reveal answer</button>
+      <div class="answer" id="ans-${i}-${j}">
+        <div class="a-label">Answer</div>
+        <p>${qq.a}</p>
+        <p>${qq.d}</p>
+      </div>
+    </div>`).join('');
+  deck.insertAdjacentHTML('beforeend', `
+    <section class="slide" data-stop="${i}">
+      <div class="chiprow">
+        <span class="stop-belt ${s.onDark?'on-dark':''}" style="background:var(${s.beltVar})">${s.belt} belt</span>
+        <span class="stop-loc">${s.loc}</span>
+      </div>
+      <div class="media"><video src="${s.video}" muted loop playsinline preload="metadata"></video></div>
+      <h3 class="title">${s.title}</h3>
+      ${qHtml}
+    </section>`);
+});
+/* finish */
+deck.insertAdjacentHTML('beforeend', `
+  <section class="slide"><div class="finish-wrap">
+    <div class="eyebrow">All ten answered</div>
+    <h2>You made it to<br>the <span class="k">floor</span></h2>
+    <p style="color:var(--paper-dim);margin-top:14px">That's the tour. You know where your shoes go, how to address your instructors, and why the belt never gets washed. We'll see you at your first class.</p>
+    <div class="beltbar">${STOPS.map(s=>`<i style="background:var(${s.beltVar})"></i>`).join('')}</div>
+    <div class="flyover">
+      <h4>Bonus · Full drone flyover</h4>
+      <div class="frame"><video src="clips/full_flyover.mp4" controls preload="none" playsinline></video></div>
+    </div>
+  </div></section>`);
+/* ---------- dots ---------- */
+const dots = document.getElementById('dots');
+STOPS.forEach((_,i)=>{const d=document.createElement('i');d.id='dot-'+i;dots.appendChild(d);});
+/* ---------- state ---------- */
+const railFill=document.getElementById('railFill');
+const scoreTxt=document.getElementById('scoreTxt');
+const nextBtn=document.getElementById('nextBtn');
+const backBtn=document.getElementById('backBtn');
+function stopComplete(i){
+  return STOPS[i].questions.every((_,j)=>answered[i+'-'+j]);
+}
+function updateScore(){
+  const n=Object.keys(answered).length;
+  scoreTxt.textContent=`${n} / ${TOTAL_Q}`;
+  railFill.style.width=(n/TOTAL_Q*100)+'%';
+}
+function paint(){
+  deck.style.transform=`translateX(${-idx*100}vw)`;
+  backBtn.disabled = idx===0;
+  STOPS.forEach((_,i)=>{
+    const d=document.getElementById('dot-'+i);
+    d.className = stopComplete(i)?'done':(idx===i+1?'on':'');
+  });
+  if(idx===0){ nextBtn.disabled=false; nextBtn.textContent='Begin the tour'; }
+  else if(idx===N-1){ nextBtn.disabled=false; nextBtn.textContent='Take the tour again'; }
+  else{
+    const i=idx-1;
+    if(stopComplete(i)){
+      nextBtn.disabled=false;
+      nextBtn.textContent = i===STOPS.length-1?'Finish tour':'Next stop';
+    } else {
+      nextBtn.disabled=true;
+      nextBtn.textContent='Reveal the answer to continue';
+    }
+  }
+  /* play only current stop's video */
+  document.querySelectorAll('.slide video').forEach(v=>{
+    if(v.closest('.slide').dataset.stop==String(idx-1)){ v.play().catch(()=>{}); }
+    else if(!v.controls){ v.pause(); }
+  });
+}
+function go(n){
+  idx=Math.max(0,Math.min(N-1,n));
+  if(idx===N-1 && Object.keys(answered).length<TOTAL_Q){
+    /* can't finish early */
+    idx=N-2;
+  }
+  document.querySelectorAll('.slide')[idx].scrollTop=0;
+  paint();
+}
+nextBtn.addEventListener('click',()=>{
+  if(idx===N-1){ restart(); return; }
+  go(idx+1);
+});
+backBtn.addEventListener('click',()=>go(idx-1));
+function restart(){
+  answered={};
+  document.querySelectorAll('.answer').forEach(a=>a.classList.remove('show'));
+  document.querySelectorAll('.reveal-btn').forEach(b=>b.textContent='Reveal answer');
+  updateScore();
+  go(0);
+}
+/* ---------- reveal ---------- */
+deck.addEventListener('click',e=>{
+  const btn=e.target.closest('.reveal-btn');
+  if(!btn) return;
+  const i=+btn.dataset.i, j=+btn.dataset.j;
+  const ans=document.getElementById(`ans-${i}-${j}`);
+  const showing=ans.classList.toggle('show');
+  if(showing && !answered[i+'-'+j]){
+    answered[i+'-'+j]=true;
+    btn.textContent='Answered ✓';
+    updateScore();
+  }
+  paint();
+});
+/* ---------- swipe ---------- */
+let tx=null, ty=null;
+deck.addEventListener('touchstart',e=>{
+  tx=e.touches[0].clientX; ty=e.touches[0].clientY;
+},{passive:true});
+deck.addEventListener('touchend',e=>{
+  if(tx===null) return;
+  const dx=e.changedTouches[0].clientX-tx;
+  const dy=e.changedTouches[0].clientY-ty;
+  tx=null;
+  if(Math.abs(dx)<55 || Math.abs(dx)<Math.abs(dy)*1.4) return;
+  if(dx<0){ /* forward */
+    if(idx===0 || idx===N-1 || stopComplete(idx-1)) go(idx+1);
+  } else {
+    go(idx-1);
+  }
+},{passive:true});
+updateScore();
+paint();
+</script>
+</body>
+</html>

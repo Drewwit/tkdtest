@@ -222,6 +222,16 @@
     *{transition:none!important;animation:none!important}
   }
 </style>
+<script>
+/* phones and portrait tablets get the mobile build; desktop and landscape iPads stay here */
+(function(){
+  if(new URLSearchParams(location.search).has('desktop')) return;
+  var coarse = matchMedia('(pointer:coarse)').matches;
+  var small = Math.min(screen.width, screen.height) <= 520;
+  var portrait = matchMedia('(orientation:portrait)').matches;
+  if(coarse && (small || portrait)) location.replace('flight-m.html');
+})();
+</script>
 </head>
 <body>
 <div id="stage">

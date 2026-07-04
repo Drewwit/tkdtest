@@ -465,7 +465,6 @@ function land(){
   phase='explore';
   skipBtn.style.display='none';
   const leg=LEGS[idx];
-  still.src=leg.still;
   bg.style.backgroundImage=`url(${leg.still})`;
   const show=()=>{
     still.classList.add('on');
@@ -478,7 +477,10 @@ function land(){
     maybeReady();
     preloadNext();
   };
-  if(still.complete&&still.naturalWidth) show(); else still.onload=show;
+  /* assign BEFORE setting src: the load event fires either way (cached or
+     not), and this replaces any stale handler from a previous landing */
+  still.onload=show;
+  still.src=leg.still;
 }
 vid.addEventListener('ended',land);
 skipBtn.addEventListener('click',()=>{vid.pause();land();});

@@ -19,6 +19,12 @@ Squarespace code blocks can't host the video files themselves. Two options:
 
 The quiz answers match the Google Form, so this can either replace the form or be the "study guide" students do before submitting it.
 
+## Version C: "The Flight" (flight.html)
+
+Eight flight legs cut from the continuous `dji_..._150258_15` flythrough. Each leg's video ends on the exact frame used as the landing still, so the crossfade from flying to exploring is seamless. POIs sit on the stills; answering unlocks the next takeoff.
+
+**Adding the exterior shots**: add new legs to the START of the `LEGS` array in flight.html (approach, parking lot, front door). Each leg needs a `video` (mp4, 1280w, muted), a `still` (the last frame: `ffmpeg -sseof -0.1 -i leg.mp4 -frames:v 1 still.jpg`), and optional `pois`. The flight path, progress, and preloading adapt automatically.
+
 ## Source footage used
 
 - `dji_..._150258_15` (your pick) - stops 1, 7, full flyover

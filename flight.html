@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prime Martial Arts - The Flight</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#111214; --ink-2:#1b1d21; --ink-3:#26292e;
+    --paper:#f2f4f6; --paper-dim:#b9c0c7;
+    --blue:#1f7fd0; --blue-deep:#14588f;
+    --accent:#5db2f0; --accent-soft:#9fd0f5;
+    --line:#33373d; --green:#2f9e57;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:#000;color:var(--paper);
+    font-family:"Barlow",system-ui,sans-serif;font-size:16px;line-height:1.5;
+    overflow:hidden;-webkit-font-smoothing:antialiased;
+  }
+  /* ---------- stage ---------- */
+  #stage{position:fixed;inset:0;background:#000}
+  #flyVid,#stillImg{
+    position:absolute;inset:0;width:100%;height:100%;
+    object-fit:cover;display:block;
+  }
+  #flyVid{opacity:0;transition:opacity .5s}
+  #flyVid.on{opacity:1}
+  #stillImg{opacity:0;transition:opacity .5s}
+  #stillImg.on{opacity:1}
+  #stage::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(180deg, rgba(17,18,20,.5) 0%, transparent 16%, transparent 72%, rgba(17,18,20,.6) 100%);
+  }
+  #pinLayer{position:absolute;inset:0}
+  /* ---------- pins ---------- */
+  .pin{
+    position:absolute;transform:translate(-50%,-50%);
+    width:44px;height:44px;border-radius:50%;
+    background:rgba(31,127,208,.92);border:2.5px solid #fff;color:#fff;
+    cursor:pointer;z-index:6;display:grid;place-items:center;
+    font-family:"Oswald";font-weight:700;font-size:17px;
+    box-shadow:0 4px 16px rgba(0,0,0,.5);
+    opacity:0;animation:pinIn .4s .3s forwards;
+    transition:transform .15s, background .2s;
+  }
+  @keyframes pinIn{to{opacity:1}}
+  .pin:hover{transform:translate(-50%,-50%) scale(1.12)}
+  .pin::before{
+    content:"";position:absolute;inset:-7px;border-radius:50%;
+    border:2px solid rgba(93,178,240,.85);
+    animation:pulse 2s ease-out infinite;pointer-events:none;
+  }
+  @keyframes pulse{
+    0%{transform:scale(.8);opacity:1}
+    70%,100%{transform:scale(1.35);opacity:0}
+  }
+  .pin.info{
+    width:34px;height:34px;background:rgba(38,41,46,.92);
+    border-color:var(--paper-dim);font-size:15px;font-weight:600;color:var(--accent-soft);
+  }
+  .pin.info::before{display:none}
+  .pin.done{background:rgba(47,158,87,.92)}
+  .pin.done::before{display:none}
+  .pin .tip{
+    position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);
+    white-space:nowrap;pointer-events:none;
+    background:rgba(17,18,20,.92);border:1px solid var(--line);
+    color:var(--paper);font-family:"Oswald";font-weight:500;
+    font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+    padding:6px 11px;border-radius:4px;opacity:0;transition:opacity .15s;
+  }
+  .pin:hover .tip{opacity:1}
+  /* ---------- top bar ---------- */
+  .bar{
+    position:fixed;top:0;left:0;right:0;z-index:20;
+    display:flex;align-items:center;gap:12px;padding:12px 18px;
+  }
+  .badge{
+    width:32px;height:32px;flex:none;border-radius:6px;background:var(--blue);
+    display:grid;place-items:center;font-family:"Oswald";font-weight:700;color:#fff;font-size:18px;
+  }
+  .bar h1{
+    font-family:"Oswald";font-weight:600;font-size:15px;
+    letter-spacing:.14em;text-transform:uppercase;
+    text-shadow:0 1px 8px rgba(0,0,0,.8);
+  }
+  .bar h1 span{color:var(--accent)}
+  .score{
+    margin-left:auto;font-family:"Oswald";font-weight:600;font-size:12px;
+    letter-spacing:.14em;text-transform:uppercase;
+    background:rgba(17,18,20,.75);border:1px solid var(--line);
+    padding:7px 12px;border-radius:20px;backdrop-filter:blur(6px);
+  }
+  /* flight path progress */
+  .path{
+    position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:20;
+    display:flex;align-items:center;gap:0;
+  }
+  .node{
+    width:11px;height:11px;border-radius:50%;
+    background:var(--ink-3);border:2px solid var(--line);
+    transition:all .3s;
+  }
+  .node.on{background:var(--blue);border-color:var(--accent)}
+  .node.done{background:var(--green);border-color:var(--green)}
+  .link{width:22px;height:2px;background:var(--line)}
+  @media (max-width:560px){ .link{width:12px} }
+  /* ---------- location chip ---------- */
+  .locchip{
+    position:fixed;left:50%;transform:translateX(-50%);bottom:96px;z-index:18;
+    font-family:"Oswald";font-weight:600;font-size:13px;
+    letter-spacing:.22em;text-transform:uppercase;color:var(--paper);
+    background:rgba(17,18,20,.78);border:1px solid var(--line);
+    padding:9px 18px;border-radius:4px;backdrop-filter:blur(6px);
+    opacity:0;transition:opacity .4s;pointer-events:none;
+  }
+  .locchip.on{opacity:1}
+  /* ---------- buttons ---------- */
+  .skip{
+    position:fixed;right:18px;bottom:18px;z-index:22;
+    background:rgba(17,18,20,.7);color:var(--paper-dim);
+    border:1px solid var(--line);border-radius:5px;cursor:pointer;
+    font-family:"Oswald";font-weight:500;font-size:12px;
+    letter-spacing:.14em;text-transform:uppercase;padding:9px 15px;
+    display:none;backdrop-filter:blur(6px);
+  }
+  .skip:hover{color:var(--paper);border-color:var(--paper-dim)}
+  .takeoff{
+    position:fixed;left:50%;transform:translateX(-50%);bottom:26px;z-index:22;
+    background:var(--blue);color:#fff;border:none;cursor:pointer;
+    font-family:"Oswald";font-weight:600;font-size:15px;
+    letter-spacing:.16em;text-transform:uppercase;
+    padding:14px 30px;border-radius:5px;display:none;
+    box-shadow:0 6px 24px rgba(31,127,208,.4);
+    animation:bob 1.6s ease-in-out infinite;
+  }
+  .takeoff:hover{background:var(--blue-deep)}
+  @keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-4px)}}
+  /* ---------- question card ---------- */
+  #card{
+    position:fixed;left:50%;bottom:0;z-index:30;
+    width:min(520px,100%);transform:translate(-50%,110%);
+    transition:transform .35s cubic-bezier(.4,0,.2,1);
+    background:var(--ink-2);border:1px solid var(--line);border-bottom:none;
+    border-radius:14px 14px 0 0;max-height:70vh;display:flex;flex-direction:column;
+    box-shadow:0 -16px 50px rgba(0,0,0,.55);
+  }
+  #card.open{transform:translate(-50%,0)}
+  .card-head{display:flex;align-items:center;gap:10px;padding:15px 18px 8px}
+  .card-head .loc{
+    font-family:"Oswald";font-weight:600;font-size:11px;
+    letter-spacing:.2em;text-transform:uppercase;color:var(--accent);
+  }
+  .card-head .close{
+    margin-left:auto;background:var(--ink-3);border:1px solid var(--line);
+    color:var(--paper);width:30px;height:30px;border-radius:6px;cursor:pointer;
+  }
+  .card-body{overflow-y:auto;padding:0 18px 20px}
+  .card-body h2{font-family:"Oswald";font-weight:600;font-size:21px;margin:2px 0 8px}
+  .card-body .note{color:var(--paper-dim);font-size:14.5px}
+  .qblock{margin-top:14px;padding-top:13px;border-top:1px solid var(--line)}
+  .q-label{
+    font-family:"Oswald";font-weight:600;font-size:11px;
+    letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;
+  }
+  .q-text{font-size:17px;font-weight:500;line-height:1.4}
+  .reveal-btn{
+    margin-top:11px;width:100%;background:transparent;color:var(--accent);
+    border:1.5px solid var(--accent);border-radius:5px;cursor:pointer;
+    font-family:"Oswald";font-weight:600;font-size:13px;
+    letter-spacing:.14em;text-transform:uppercase;padding:10px;
+  }
+  .reveal-btn:hover{background:rgba(93,178,240,.1)}
+  .answer{display:none;margin-top:11px;padding:12px 14px;
+    background:var(--ink-3);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;
+  }
+  .answer.show{display:block}
+  .answer .a-label{
+    font-family:"Oswald";font-weight:600;font-size:10px;
+    letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:4px;
+  }
+  .answer p+p{margin-top:6px;color:var(--paper-dim);font-size:13.5px}
+  /* ---------- overlays ---------- */
+  .overlay{
+    position:fixed;inset:0;z-index:40;
+    background:rgba(17,18,20,.84);backdrop-filter:blur(7px);
+    display:grid;place-items:center;padding:22px;
+    opacity:1;transition:opacity .4s;
+  }
+  .overlay.hide{opacity:0;pointer-events:none}
+  .overlay .box{
+    max-width:540px;text-align:center;
+    background:linear-gradient(160deg,var(--ink-2),var(--ink-3));
+    border:1px solid var(--blue);border-radius:14px;padding:42px 30px;
+  }
+  .overlay .eyebrow{
+    font-family:"Oswald";font-weight:600;font-size:12px;
+    letter-spacing:.3em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;
+  }
+  .overlay h2{
+    font-family:"Oswald";font-weight:700;font-size:clamp(26px,6vw,42px);
+    text-transform:uppercase;line-height:1.05;
+  }
+  .overlay h2 .k{color:var(--accent)}
+  .overlay p{color:var(--paper-dim);margin:14px auto 0;max-width:420px}
+  .overlay button{
+    margin-top:26px;background:var(--blue);color:#fff;border:none;cursor:pointer;
+    font-family:"Oswald";font-weight:600;font-size:15px;
+    letter-spacing:.14em;text-transform:uppercase;
+    padding:14px 30px;border-radius:4px;
+    box-shadow:0 6px 20px rgba(31,127,208,.28);
+  }
+  .overlay button:hover{background:var(--blue-deep)}
+  #finishOverlay{display:none}
+  #finishOverlay.on{display:grid}
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important;animation:none!important}
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <video id="flyVid" muted playsinline preload="auto"></video>
+  <img id="stillImg" alt="School view">
+  <div id="pinLayer"></div>
+</div>
+
+<header class="bar">
+  <div class="badge">P</div>
+  <h1>Prime <span>Martial Arts</span> · The Flight</h1>
+  <div class="score" id="scoreTxt">0 / 10</div>
+</header>
+<div class="path" id="path"></div>
+<div class="locchip" id="locChip"></div>
+
+<button class="skip" id="skipBtn">Skip flight →</button>
+<button class="takeoff" id="takeoffBtn">Take off →</button>
+
+<aside id="card">
+  <div class="card-head">
+    <span class="loc" id="cLoc"></span>
+    <button class="close" id="cClose">✕</button>
+  </div>
+  <div class="card-body" id="cBody"></div>
+</aside>
+
+<div class="overlay" id="helloOverlay">
+  <div class="box">
+    <div class="eyebrow">White belt orientation</div>
+    <h2>Fly through the <span class="k">school</span></h2>
+    <p>The drone flies you from stop to stop through the real building. Land at each one, tap the markers, and answer all 10 orientation questions on your way to the mat.</p>
+    <button id="helloBtn">Take flight</button>
+  </div>
+</div>
+
+<div class="overlay hide" id="finishOverlay">
+  <div class="box">
+    <div class="eyebrow">Flight complete · 10 of 10</div>
+    <h2>Welcome to the <span class="k">mat</span></h2>
+    <p>You've flown the whole school and answered every orientation question. Show this screen at the front desk at your first class.</p>
+    <button id="againBtn">Fly again</button>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   FLIGHT PLAN
+   Each leg: a flight video that lands on a still. POIs sit
+   on the still (x/y are % of the 16:9 frame).
+   EXTERIOR SHOTS: when the outdoor footage is ready, add
+   legs at the START of this array (approach, parking lot,
+   front of building) using the same shape. Everything else
+   adapts automatically.
+========================================================= */
+const LEGS = [
+  {
+    video:"clips/leg1_door_to_desk.mp4", still:"clips/still1_desk.jpg",
+    loc:"Stop 1 · The lobby",
+    pois:[{
+      x:63, y:55, icon:"1", tip:"You just walked in",
+      title:"Through the front door",
+      note:"The front desk is straight ahead when you walk in.",
+      questions:[{
+        q:"I am not allowed to attend class if I am more than _____ minutes late.",
+        a:"10 minutes.",
+        d:"Plan to arrive a few minutes early. If you are more than 10 minutes late, check with the front desk about attending the next class instead."
+      }]
+    }]
+  },
+  {
+    video:"clips/leg2_to_shoerack.mp4", still:"clips/still2_shoerack.jpg",
+    loc:"Stop 2 · The shoe rack",
+    pois:[{
+      x:45, y:50, icon:"2", tip:"The shoe rack",
+      title:"Shoes off, right away",
+      note:"The cubbies are right inside the front door. Street shoes stop here.",
+      questions:[{
+        q:"Are students, friends, and family allowed to walk on the Taekwondo mat with shoes on?",
+        a:"No.",
+        d:"Street shoes never touch the mat, and that includes friends and family. It keeps the floor clean and shows respect for the space."
+      }]
+    }]
+  },
+  {
+    video:"clips/leg3_to_desk.mp4", still:"clips/still3_desk.jpg",
+    loc:"Stop 3 · The front desk",
+    pois:[{
+      x:62, y:68, icon:"3", tip:"The front desk",
+      title:"Who to talk to",
+      note:"Belt tests, schedules, gear, and billing all run through the front desk.",
+      questions:[{
+        q:"True or False? All instructors in the school must be referred to by last name.",
+        a:"True.",
+        d:"Instructors are addressed as Mr. or Ms. plus their last name, every time."
+      },{
+        q:"When an instructor gives me a command, I should respond with a “Yes/No _____” or “Yes/No _____”.",
+        a:"Sir or Ma'am.",
+        d:"Respond with a clear “Yes sir” or “Yes ma'am” so your instructor knows you heard the command."
+      }]
+    }]
+  },
+  {
+    video:"clips/leg4_to_restrooms.mp4", still:"clips/still4_restrooms.jpg",
+    loc:"Stop 4 · The restrooms",
+    pois:[{
+      x:46, y:52, icon:"4", tip:"Restrooms and changing",
+      title:"Where to change",
+      note:"Two restrooms, right off the lobby. Come dressed when you can, or change here before class.",
+      questions:[{
+        q:"If I want to wear an undershirt with my uniform, what color must the shirt be?",
+        a:"White.",
+        d:"Plain white only."
+      },{
+        q:"What jewelry are you allowed to wear to class?",
+        a:"A wedding band and studded earrings.",
+        d:"Everything else comes off before class for safety."
+      }]
+    }]
+  },
+  {
+    video:"clips/leg5_to_fountains.mp4", still:"clips/still5_fountains.jpg",
+    loc:"Stop 5 · The water fountains",
+    pois:[{
+      x:60, y:78, icon:"5", tip:"Water fountains",
+      title:"Fill your bottle",
+      note:"The fountains are right outside the training floor.",
+      questions:[{
+        q:"There is no food or drink allowed on the Taekwondo mat other than _____.",
+        a:"Bottled water.",
+        d:"Snacks and drinks stay in the lobby. A sealed water bottle is the only thing that goes to the floor with you."
+      }]
+    }]
+  },
+  {
+    video:"clips/leg6_to_benches.mp4", still:"clips/still6_benches.jpg",
+    loc:"Stop 6 · The seating area",
+    pois:[{
+      x:50, y:62, icon:"i", info:true, tip:"Seating for friends and family",
+      title:"The seating area",
+      note:"Friends, family, and waiting students watch class from these benches. No question here. Catch your breath, then fly on."
+    }]
+  },
+  {
+    video:"clips/leg7_to_beltwall.mp4", still:"clips/still7_beltwall.jpg",
+    loc:"Stop 7 · The belt wall",
+    pois:[{
+      x:40, y:44, icon:"6", tip:"The belt display",
+      title:"Respect the belt",
+      note:"Every rank in the school, white to black, hangs on the wall by the floor.",
+      questions:[{
+        q:"When I tie my belt, the left and right sides are even. What does this show an equal balance of?",
+        a:"Mind and body.",
+        d:"The even ends represent an equal balance of mind and body. Every rank ties the belt the same way."
+      },{
+        q:"It is important to keep my uniform clean, but the one part of my uniform that I never wash is my _____.",
+        a:"Belt.",
+        d:"Tradition holds that the belt carries the record of your training. Wash the uniform, never the belt."
+      }]
+    },{
+      x:71, y:47, icon:"i", info:true, tip:"Check-in station",
+      title:"Tap in for class",
+      note:"Check in on this tablet before every class. Attendance counts toward your next belt test."
+    }]
+  },
+  {
+    video:"clips/leg8_to_mat.mp4", still:"clips/still8_mat.jpg",
+    loc:"Final stop · The mat",
+    pois:[{
+      x:50, y:76, icon:"7", tip:"The edge of the mat",
+      title:"Where the floor begins",
+      note:"This line marks the start of the training floor.",
+      questions:[{
+        q:"Every time I enter or exit the Taekwondo mat, I need to _____.",
+        a:"Bow.",
+        d:"Bow every time you step on and every time you step off."
+      }]
+    }]
+  }
+];
+const TOTAL_Q = LEGS.flatMap(l=>l.pois).reduce((n,p)=>n+(p.questions?p.questions.length:0),0);
+let idx = -1;
+let answered = {};      // "leg-poi-q" : true
+let phase = "idle";     // fly | explore
+/* ---------- dom ---------- */
+const vid = document.getElementById('flyVid');
+const still = document.getElementById('stillImg');
+const layer = document.getElementById('pinLayer');
+const skipBtn = document.getElementById('skipBtn');
+const takeoffBtn = document.getElementById('takeoffBtn');
+const locChip = document.getElementById('locChip');
+const scoreTxt = document.getElementById('scoreTxt');
+const card = document.getElementById('card');
+const cLoc = document.getElementById('cLoc');
+const cBody = document.getElementById('cBody');
+/* ---------- flight path ---------- */
+const path = document.getElementById('path');
+LEGS.forEach((_,i)=>{
+  if(i>0){const l=document.createElement('div');l.className='link';path.appendChild(l);}
+  const n=document.createElement('div');n.className='node';n.id='node-'+i;path.appendChild(n);
+});
+function paintPath(){
+  LEGS.forEach((_,i)=>{
+    const n=document.getElementById('node-'+i);
+    n.className='node'+(i<idx?' done':i===idx?' on':'');
+  });
+}
+/* ---------- pin mapping (16:9 media, object-fit cover) ---------- */
+function renderPins(){
+  layer.innerHTML='';
+  if(phase!=='explore'||idx<0) return;
+  const leg=LEGS[idx];
+  const vw=innerWidth, vh=innerHeight, ar=16/9, vpAr=vw/vh;
+  let dw,dh,ox,oy;
+  if(vpAr>ar){dw=vw;dh=vw/ar;ox=0;oy=(vh-dh)/2;}
+  else{dh=vh;dw=vh*ar;oy=0;ox=(vw-dw)/2;}
+  leg.pois.forEach((p,pi)=>{
+    let px=ox+dw*(p.x/100), py=oy+dh*(p.y/100);
+    px=Math.min(Math.max(px,34),vw-34);
+    py=Math.min(Math.max(py,88),vh-100);
+    const key=`${idx}-${pi}`;
+    const done=p.questions&&p.questions.every((_,qi)=>answered[`${key}-${qi}`]);
+    const el=document.createElement('button');
+    el.className='pin'+(p.info?' info':'')+(done?' done':'');
+    el.style.left=px+'px';el.style.top=py+'px';
+    el.innerHTML=`${done?'✓':p.icon}<span class="tip">${p.tip}</span>`;
+    el.addEventListener('click',()=>openCard(pi));
+    layer.appendChild(el);
+  });
+}
+addEventListener('resize',renderPins);
+/* ---------- flow ---------- */
+function fly(i){
+  idx=i; phase='fly';
+  paintPath(); closeCard();
+  locChip.classList.remove('on');
+  takeoffBtn.style.display='none';
+  layer.innerHTML='';
+  vid.src=LEGS[i].video;
+  vid.classList.add('on');
+  still.classList.remove('on');
+  vid.play().catch(()=>{ land(); });
+  skipBtn.style.display='block';
+}
+function land(){
+  if(phase!=='fly') return;
+  phase='explore';
+  skipBtn.style.display='none';
+  const leg=LEGS[idx];
+  still.src=leg.still;
+  const show=()=>{
+    still.classList.add('on');
+    vid.classList.remove('on');
+    setTimeout(()=>{vid.pause();},500);
+    locChip.textContent=leg.loc;
+    locChip.classList.add('on');
+    renderPins();
+    maybeReady();
+    preloadNext();
+  };
+  if(still.complete&&still.naturalWidth) show(); else still.onload=show;
+}
+vid.addEventListener('ended',land);
+skipBtn.addEventListener('click',()=>{ vid.pause(); land(); });
+function stopComplete(){
+  const leg=LEGS[idx];
+  return leg.pois.every((p,pi)=>!p.questions||p.questions.every((_,qi)=>answered[`${idx}-${pi}-${qi}`]));
+}
+function maybeReady(){
+  if(stopComplete()){
+    takeoffBtn.textContent = idx===LEGS.length-1 ? 'Bow in →' : 'Take off →';
+    takeoffBtn.style.display='block';
+  }
+}
+takeoffBtn.addEventListener('click',()=>{
+  if(idx===LEGS.length-1){
+    const f=document.getElementById('finishOverlay');
+    f.classList.add('on');
+    requestAnimationFrame(()=>f.classList.remove('hide'));
+  } else {
+    fly(idx+1);
+  }
+});
+function preloadNext(){
+  const nxt=LEGS[idx+1];
+  if(!nxt) return;
+  const v=document.createElement('video');
+  v.preload='auto'; v.muted=true; v.src=nxt.video;
+  const im=new Image(); im.src=nxt.still;
+}
+/* ---------- card ---------- */
+let openPoiIdx=null;
+function openCard(pi){
+  const leg=LEGS[idx], p=leg.pois[pi];
+  openPoiIdx=pi;
+  cLoc.textContent=leg.loc;
+  let html=`<h2>${p.title}</h2>`;
+  if(p.note) html+=`<p class="note">${p.note}</p>`;
+  if(p.questions){
+    const key=`${idx}-${pi}`;
+    html+=p.questions.map((q,qi)=>`
+      <div class="qblock">
+        <div class="q-label">Question${p.questions.length>1?' '+(qi+1)+' of '+p.questions.length:''}</div>
+        <div class="q-text">${q.q}</div>
+        <button class="reveal-btn" data-k="${key}-${qi}">${answered[`${key}-${qi}`]?'Answered ✓ (show again)':'Reveal answer'}</button>
+        <div class="answer" id="a-${key}-${qi}">
+          <div class="a-label">Answer</div>
+          <p>${q.a}</p>
+          <p>${q.d}</p>
+        </div>
+      </div>`).join('');
+  }
+  cBody.innerHTML=html;
+  card.classList.add('open');
+}
+function closeCard(){card.classList.remove('open');openPoiIdx=null;}
+document.getElementById('cClose').addEventListener('click',closeCard);
+cBody.addEventListener('click',e=>{
+  const btn=e.target.closest('.reveal-btn');
+  if(!btn) return;
+  const k=btn.dataset.k;
+  const ans=document.getElementById('a-'+k);
+  const showing=ans.classList.toggle('show');
+  if(showing&&!answered[k]){
+    answered[k]=true;
+    btn.textContent='Answered ✓ (hide)';
+    updateScore(); renderPins(); maybeReady();
+  } else {
+    btn.textContent=answered[k]?'Answered ✓ (show again)':'Reveal answer';
+  }
+});
+function updateScore(){
+  scoreTxt.textContent=`${Object.keys(answered).length} / ${TOTAL_Q}`;
+}
+/* ---------- start / restart ---------- */
+document.getElementById('helloBtn').addEventListener('click',()=>{
+  document.getElementById('helloOverlay').classList.add('hide');
+  fly(0);
+});
+document.getElementById('againBtn').addEventListener('click',()=>{
+  answered={}; updateScore();
+  const f=document.getElementById('finishOverlay');
+  f.classList.add('hide');
+  setTimeout(()=>f.classList.remove('on'),400);
+  fly(0);
+});
+updateScore();
+</script>
+</body>
+</html>

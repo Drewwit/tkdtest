@@ -10,6 +10,12 @@ Two self-contained versions of the onboarding tour, built from the July 1 drone/
 
 Open either HTML file directly in a browser to test - no server needed, everything is relative paths.
 
+## Mobile versions
+
+Each prototype has a phone-first build: `tour-m.html` (full-screen card per stop, swipe between stops), `explore-m.html` (swipe between rooms, bottom-sheet questions), and `flight-m.html` (cinematic media band, bottom-sheet questions, swipe left to take off). All buttons sit in the thumb zone and tap targets are 44px+.
+
+Routing is automatic: phones and portrait tablets get the `-m` pages, desktops and landscape iPads stay on the desktop pages. Escape hatches for testing: add `?desktop=1` to any desktop page to stop it routing away, or `?mobile=1` to view an `-m` page in a desktop browser.
+
 ## Putting it on Squarespace
 
 Squarespace code blocks can't host the video files themselves. Two options:
